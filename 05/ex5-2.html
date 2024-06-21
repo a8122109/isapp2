@@ -11,8 +11,32 @@
     <script>
         osql.requireLogin();//すべてのページに入れる．google認証をして，osql.connect()や，osql.getMe()を使えるようにしてくれる．
 
-        function button1Pressed() {
+        $(document).ready(function(){ 
+            var SWS = document.getElementById("Search").value;   
+            doSelect(SWS);
+        })
+
+        var timer;
+
+        $().ready(function () {
+            timer = 0;
+            setInterval(doCount, 2000);
+        });
+
+        async function doCount() {
+            var SWS = document.getElementById("Search").value;
+            doSelect(SWS);
+        }
+
+        function tweet() {
             doInsert();
+            var SWS = document.getElementById("Search").value;
+            doSelect(SWS);
+        }
+
+        function search() {
+            var SWS = document.getElementById("Search").value;
+            doSelect(SWS);
         }
 
         async function doInsert() {
@@ -24,6 +48,22 @@
             console.log(objects);
 
             document.getElementById('result').innerHTML = "tweetしました";
+
+            document.getElementById('tf2').value = "";
+        }
+
+        async function doSelect(SWS) {
+            var sql = 'select * from Tweets where tweet like "%' + SWS + '%" order by time desc limit 20';
+            var objects = await osql.connect(sql);
+            console.log(objects);
+            var html = '';
+            html = html + '<ul>';
+            for (var i = 0; i < objects.length; i++) {
+                var object = objects[i];
+                html = html + '<li>' + object.id + ',' + object.name + ',' + object.tweet + ',' + object.time + '</li>';
+            }
+            html = html + '</ul>';
+            document.getElementById('result').innerHTML = html;
         }
     </script>
 
@@ -35,8 +75,10 @@
     名前:<input id="tf1" value="名無し" type="textfield">
     <br>
     tweet:<input id="tf2" type="textfield">
-    <button onclick="button1Pressed()">tweet</button>
+    <button onclick="tweet()">tweet</button>
     <br>
+    検索:<input type="text" id="Search">
+    <button onclick="search()">X</button>
     <p id="result"></p>
 </body>
 
